@@ -107,7 +107,7 @@ int main() {
           msgJson["steering_angle"] = steer_value;
           msgJson["throttle"] = throttle_value;
 
-          //Display the MPC predicted trajectory 
+          //Display the MPC predicted trajectory
           vector<double> mpc_x_vals;
           vector<double> mpc_y_vals;
 
@@ -132,10 +132,10 @@ int main() {
           std::cout << msg << std::endl;
           // Latency
           // The purpose is to mimic real driving conditions where
-          // the car does actuate the commands instantly.
+          // the car doesn't actuate the commands instantly.
           //
-          // Feel free to play around with this value but should be to drive
-          // around the track with 100ms latency.
+          // Feel free to play around with this value but the car should be able
+          // to drive around the track with 100ms latency.
           //
           // NOTE: REMEMBER TO SET THIS TO 100 MILLISECONDS BEFORE
           // SUBMITTING.
