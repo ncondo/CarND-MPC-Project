@@ -94,5 +94,5 @@ v = v + a * latency
 ```
 With the hyperparameters tuned and latency accounted for, my model is able to reach speeds of over 100mph on the test track while safely and smoothly navigating the course. [Link to demo on YouTube](https://www.youtube.com/watch?v=Va-4HuDMhfo)
 <p align="center">
-![demo](demo/MPC-demo.gif)
+  <img>![demo](demo/MPC-demo.gif)</img>
 </p>
