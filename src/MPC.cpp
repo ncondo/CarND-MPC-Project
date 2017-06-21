@@ -25,7 +25,7 @@ const double Lf = 2.67;
 double ref_cte = 0;
 double ref_epsi = 0;
 // The reference velocity is set to 60mph can play with different values.
-double ref_v = 160;
+double ref_v = 88;
 
 // The solver takes all the state variables and actuator variables in a single vector.
 // We can save the starting points for each variable to make calculations easier.
