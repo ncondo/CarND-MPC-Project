@@ -2,6 +2,9 @@
 Self-Driving Car Engineer Nanodegree Program
 
 ---
+<p align="center">
+  <img width="480" height="270" src="demo/MPC-demo.gif">
+</p>
 
 ## Dependencies
 
@@ -93,6 +96,3 @@ psi = psi - v * delta / Lf * latency
 v = v + a * latency
 ```
 With the hyperparameters tuned and latency accounted for, my model is able to reach speeds of over 100mph on the test track while safely and smoothly navigating the course. [Link to demo on YouTube](https://www.youtube.com/watch?v=Va-4HuDMhfo)
-<p align="center">
-  <img width="480" height="270" src="demo/MPC-demo.gif">
-</p>
