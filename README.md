@@ -57,7 +57,7 @@ The goal of this project is to implement Model Predictive Control (MPC) to drive
 
 ### Vehicle model
 
-A kinematic model is used with a goal of capturing how the state evolves over time, and how we can provide an input to change it. The state is represented by the x and y coordinates of the vehicle, the vehicle's orientation (psi), the velocity (v), the error between the center of the road and the vehicle aka cross-track error (cte), and the orientation error (epsi). The actuators which control the vehicle state are the steering angle (delta) and acceleration (a). Updating the state each timestep is done via the following equations:
+A kinematic model is used with a goal of capturing how the state evolves over time, and how we can provide an input to change it. The state is represented by the x and y coordinates of the vehicle, the vehicle's orientation (psi), the velocity (v), the error between the center of the road and the vehicle aka cross-track error (cte), and the orientation error (epsi). The actuators which control the vehicle state are the steering angle (delta) and acceleration (a). The parameter Lf is the distance from the front of the vehicle to its center of gravity, which is needed because different sized vehicles have different turning radii. Updating the state each timestep is done via the following equations:
 ```
 x[t+1] = x[t] + v[t] * cos(psi[t]) * dt
 y[t+1] = y[t] + v[t] * sin(psi[t]) * dt
@@ -66,3 +66,32 @@ v[t+1] = v[t] + a[t] * dt
 cte[t+1] = cte[t] + v[t] * sin(epsi[t]) * dt
 epsi[t+1] = psi[t] - psides[t] + v[t] / Lf * delta[t] * dt
 ```
+
+### Polynomial Fitting and MPC Preprocessing
+
+The simulator provides waypoints using the map's coordinate system, which I transform into the vehicle's coordinate space. This makes it easier to calculate the cte and epsi values for the MPC, and also for displaying the trajectories. The transformation is done by first shifting the origin to the current position of the vehicle and rotating the x-axis to align with the heading of the vehicle. The following equations are used to perform the transformation:
+```
+shift_x = waypoint_x - car_x
+shift_y = waypoint_y - car_y
+
+waypoint_x = shift_x * cos(-psi) - shift_y * sin(-psi)
+waypoint_y = shift_x * sin(-psi) - shift_y * cos(-psi)
+```
+A third order polynomial is then fit to the waypoints in vehicle space.
+
+### Timestep Length and Elapsed Duration (N & dt)
+
+The prediction horizon is the duration over which future predictions are made, and is the product of two variables: N and dt. N is the number of timesteps in the horizon, and dt is how much time elapses between actuations. N and dt are hyperparameters which need to be tuned for different models. In general, the horizon should only be a couple seconds at most in the case of driving a vehicle. This is because the environment will change quickly enough so that predictions 10s of seconds into the future will be inaccurate. In this project, I found values of N=10 and dt=0.1 to work well, producing a prediction horizon of one second. I initially experimented with a timestep of 20 and durations as low as 0.05, but most of the test runs ended with my car in the lake. Specifically, making the prediction horizon more than one second resulted in very poor performance around sharp bends.
+
+### Model Predictive Control with Latency
+
+One of the requirements of this project was to create a model that could handle a 100 millisecond latency, since there is often some amount of latency in actuators in real world systems. My solution to this problem was to first use the kinematic equations described earlier to predict the state of the vehicle after 100ms. After receiving the data from the simulator, and before making the transformation into vehicle space, I apply the following equations:
+```
+car_x = car_x + v * cos(psi) * latency
+car_y = car_y + v * sin(psi) * latency
+psi = psi - v * delta / Lf * latency
+v = v + a * latency
+```
+With the hyperparameters tuned and latency accounted for, my model is able to reach speeds of over 100mph on the test track while safely and smoothly navigating the course. [Link to demo on YouTube](https://www.youtube.com/watch?v=Va-4HuDMhfo)
+
+![demo](demo/MPC-demo.gif)
